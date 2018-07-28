@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>2017-11-16.png</file>
+        <file>Slider.qml</file>
+	<file>VHSC_2ndYear.xlsx</file>
+        <file>1.jpg</file>
+        <file>2.jpg</file>
+        <file>3.jpg</file>
+    </qresource>
+</RCC>

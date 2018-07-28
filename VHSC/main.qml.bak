@@ -1,0 +1,208 @@
+import QtQuick 2.6
+import QtQuick.Window 2.2
+import QtQuick.Controls 2.0
+import QtQuick 2.2
+import QtQuick.Dialogs 1.0
+import "./"
+
+Window {
+    visible: true
+    id:root
+    width: 1000
+    height: 700
+    title: qsTr("CGVHSS Result Analyser Ver 1.0 ")
+    color: "#1D4580"
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            //console.log(qsTr('Clicked on background. Text: "' + textEdit.text + '"'))
+        }
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        nameFilters: ["Excel file(*.xlsx)", "Excel file(*.xls)"]
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialog.fileUrl)
+            filePath.text = fileDialog.fileUrl
+            schoolModel.setFilePath(fileDialog.fileUrl, modelCombo.currentIndex)
+        }
+        onRejected: {
+            console.log("Canceled")
+            Qt.quit()
+        }
+        Component.onCompleted: visible = false
+    }
+    Image {
+        id: name
+        source: "qrc:/2017-11-16.png"
+        // width: 50
+        // height:50
+        opacity: .2
+    }
+
+
+    Column
+    {
+        Row
+        {
+            anchors.horizontalCenter:parent.horizontalCenter
+
+
+            Text
+            {
+                color: "white"
+                font.pixelSize: 20
+                text:"Calicut Girls Vocational & Higher Secondary School\nKundungal, Kallai P.O, Calicut - 03, www.calicutgirlsschool.org"
+            }
+        }
+        Row
+        {
+
+            Column
+            {
+                Rectangle
+                {
+                    border.color: "white"
+                    border.width: 5
+                    radius: 10
+                    color: "transparent"
+                    width: root.width/2+10
+                    height: textHeight.height+10
+                    Text
+                    {
+                        id:textHeight
+                        color: "white"
+                        font.pixelSize: 12
+                        text:"
+1. Open the link http://keralaresults.nic.in\n
+2. Give the school code, and enter, the result\n
+   will be displayed\n
+3. Copy the marks from the first roll number \n
+   onwards to wherever you required to analyse\n
+4. Open the MS Office Excel, Paste the Content ( Cntrl V), \n
+   Save it with required Name, and then Close it.\n
+5. Select the Section ( VHSS,  HSS, SSLC) from\n
+   the Analyser Software\n
+6. Select the file you need to analyse\n
+7. Press Generate Result Button.\n
+8. After displaying 'Result Generated', open\n
+   the same file that you saved.\n
+9. Result will be available on 2nd Work Sheet."
+                    }
+                }
+            }
+            Rectangle
+            {
+                border.color: "white"
+                border.width: 5
+                radius: 10
+                color: "transparent"
+                width: root.width/2+10
+                height: textHeight.height+10
+                //height:
+                Column
+                {
+                    //spacing: 50
+                    anchors.horizontalCenter:parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Row
+                    {
+
+                        ComboBox {
+                            id:modelCombo
+                            model: ["VHSC 1'st Year","VHSC 2nd Year", "HSS", "HigSchool"]
+
+
+                        }
+                    }
+                    Row
+                    {
+                        TextField
+                        {
+                            width:root.width/4
+                            id:filePath
+                            placeholderText: "Path to Excel file"
+                        }
+                        Button
+                        {
+                            text:"Browse"
+                            onClicked:
+                            {
+                                fileDialog.open()
+                            }
+                        }
+                    }
+
+                    Button
+                    {
+                        text: "Generate Report"
+                        onClicked:
+                        {
+                            progress.text = "Report Generation is in Progress..."
+                            time.starting  = true
+                            time.start();
+                        }
+                    }
+                    Timer
+                    {
+                        property bool starting: false
+                        id:time
+                        interval: 500; running: false; repeat: false
+                        onTriggered:
+                        {
+                            schoolModel.generateReport(modelCombo.currentIndex)
+                        }
+                    }
+
+                    Text
+                    {
+                        width:root.width/2
+                        id:progress
+                        color: "white"
+                    }
+                }
+            }
+
+        }
+        Column
+        {
+            anchors.horizontalCenter:parent.horizontalCenter
+            Text
+            {
+
+                width:root.width/2
+                id:copyright
+                color: "white"
+                text: "Sofware Developed by Ashif T.A ( Contact : ashiftaec@gmail.com )"
+
+            }
+            Slider
+            {
+                id:sliderHeight
+            }
+        }
+    }
+
+
+    Connections
+    {
+        target: schoolModel
+
+        onSheetIsNotAvalable:{
+            console.log("temp")
+            progress.text = "Please Add sheet number 2 in excel, and run again"
+            progress.color = "red"
+        }
+        onProgress:{
+            if(isProgress)
+            {
+                progress.text = "Successfully generated report"
+                progress.color = "white"
+            }
+        }
+    }
+}
